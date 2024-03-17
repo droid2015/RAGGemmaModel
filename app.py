@@ -1,4 +1,6 @@
-import PyPDF2
+#import PyPDF2
+import sys
+import fitz
 from langchain_community.embeddings import OllamaEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
@@ -34,11 +36,16 @@ async def on_chat_start():
     await msg.send()
 
     # Read the PDF file
-    pdf = PyPDF2.PdfReader(file.path)
+    # pdf = PyPDF2.PdfReader(file.path)
     pdf_text = ""
-    for page in pdf.pages:
-        pdf_text += page.extract_text()
-        
+    pdf_document = fitz.open(file.path)
+    
+    # Lặp qua từng trang
+    for page_num in range(pdf_document.page_count):
+        page = pdf_document.load_page(page_num)
+        pdf_text += page.get_text()
+            
+
 
     # Split the text into chunks
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1200, chunk_overlap=50)
